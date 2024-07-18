@@ -289,8 +289,8 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         specified prameters.
         """
 
-        #cube[0] = uniform_prior(cube[0], log10(0.03), log10(0.4))
-        cube[0] = uniform_prior(cube[0], -0.811, -0.603) # lg_alpha (Diemer '22)
+        cube[0] = uniform_prior(cube[0], log10(0.03), log10(0.4))
+        #cube[0] = uniform_prior(cube[0], -0.811, -0.603) # lg_alpha (Diemer '22)
         cube[1] = uniform_prior(cube[1], log10(0.1), log10(10))  # lg_beta (Diemer '22)
         cube[2] = uniform_prior(cube[2], -20, 20)                 # lg_rho_s_over_rho_m (Diemer '22)
         cube[3] = uniform_prior(cube[3], log10(0.01), log10(0.45)) # lg_r_s (Diemer '22)
@@ -302,7 +302,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         cube[5] = gaussian_prior(cube[5], 0.22, 0.11)             # f
         cube[6] = gaussian_prior(cube[6], np.log(0.3), 0.22)      
         #cube[5] = uniform_prior(cube[5], 0, 1)             # f     
-        #cube[6] = uniform_prior(cube[6], 0, 1)       # ln_sigma_r (gaussian mean +/- 4 std.)
+        #cube[6] = uniform_prior(cube[6], 0, 1)       # sigma_r (gaussian mean +/- 4 std.)
 
         return cube
 
