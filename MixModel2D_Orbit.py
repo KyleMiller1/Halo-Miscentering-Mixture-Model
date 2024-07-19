@@ -62,20 +62,13 @@ def rho_D22(theta, r, nz):
     lg_rho_s_over_rho_m = theta[2]
     lg_r_s  = theta[3]
     lg_r_t = theta[4]
-   # lg_d_1 = theta[5]
-   # lg_s   = theta[6]
-   # lg_d_max = theta[7]
-   # lg_rho_m = theta[5]
+
     
     alpha = 10.**lg_alpha
     beta = 10.**lg_beta
     r_s = 10.**lg_r_s
     r_t = 10.**lg_r_t
     rho_s_over_rho_m = 10**lg_rho_s_over_rho_m
-   # d_1 = 10**lg_d_1
-   # d_max = 10**lg_d_max
-   # s = 10**lg_s
-   # rho_m = 10**lg_rho_m
     
     
     def rho0_orbit(r):
@@ -134,8 +127,14 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
 
     Parameters
     ----------
-    data_vec_list: N_clusters*3 list of 3 element tuples,
-            each tuple containing measured radii, densities, and covariance.
+    rvals: arr
+    	Cluster radial bins, same for all halos
+    
+    rhovals: arr
+	Radial surface number densities, shape is [(Number of halos),(number of radial bins)]
+    
+    covmats:  arr
+    	Array of covariance matrices, length is number of halos, each element is the respective halo's covariance matrix
 
     out_dir: str
         String specifying where to store chains from model fitting
@@ -193,6 +192,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         # (Currently ignored to emphasize the likelihood.)
         # (Note that the prior still affects the parameter values sampled by MultiNest.)
 
+	#If priors on f and sigma_r are gaussian:
         ln_sgr = theta[6]
         log_prior = -0.5*(f - 0.22)**2/0.11**2 -0.5*(ln_sgr - np.log(0.3))**2/0.22**2
 
@@ -275,11 +275,6 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         # Return log(posterior) \propto log(likelihood) + log(prior).
         return overall_log_likelihood + log_prior
 
-    #********************
-    # Sampling Functions
-    #********************
-
-    # Format prior and likelihood for multinest
     def prior(cube, ndim=7, nparam=7):
         """
         Prior on parameters. Can be changed if chains aren't converging.
@@ -289,18 +284,14 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         specified prameters.
         """
 
-        cube[0] = uniform_prior(cube[0], log10(0.03), log10(0.4))
-        #cube[0] = uniform_prior(cube[0], -0.811, -0.603) # lg_alpha (Diemer '22)
+        cube[0] = uniform_prior(cube[0], log10(0.03), log10(0.4)) # lg_alpha (Diemer '22)
         cube[1] = uniform_prior(cube[1], log10(0.1), log10(10))  # lg_beta (Diemer '22)
         cube[2] = uniform_prior(cube[2], -20, 20)                 # lg_rho_s_over_rho_m (Diemer '22)
         cube[3] = uniform_prior(cube[3], log10(0.01), log10(0.45)) # lg_r_s (Diemer '22)
         cube[4] = uniform_prior(cube[4], log10(0.5), log10(10))     # lg_r_t (Diemer '22)
-       # cube[5] = uniform_prior(cube[5], 0, 2)                    # lg_d_1 (Diemer '22)
-       # cube[6] = uniform_prior(cube[6], log10(0.01), log10(4))  # lg_s (Diemer '22)
-       # cube[7] = uniform_prior(cube[7], 1, log10(2000))           # lg_d_max (Diemer '22)
-       # cube[5] = uniform_prior(cube[5], -20, 20)                 # lg_rho_m
         cube[5] = gaussian_prior(cube[5], 0.22, 0.11)             # f
-        cube[6] = gaussian_prior(cube[6], np.log(0.3), 0.22)      
+        cube[6] = gaussian_prior(cube[6], np.log(0.3), 0.22)     #sigma_r
+	#Uniform miscentering priors:
         #cube[5] = uniform_prior(cube[5], 0, 1)             # f     
         #cube[6] = uniform_prior(cube[6], 0, 1)       # sigma_r (gaussian mean +/- 4 std.)
 
@@ -346,31 +337,18 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
 
 # Load the cluster data.
 
-
-covmats = np.load("/home2/mky/MM_f0.22_sigr0.3_675_diag2/mm_cov_data_f0.22_sigr0.3_675_diag2.npy")
-rhovals = np.load("/home2/mky/MM_f0.22_sigr0.3_675_diag2/mm_rho_data_f0.22_sigr0.3_675_diag2.npy")
-r = np.load("/home2/mky/MM_f0.22_sigr0.3_675_diag2/mm_r_data_675_diag2.npy")
-
-#path = "/home2/mky/"
-#path2 = "f0s0/"
-#covmats = np.load(path + path2 + "Mbin3_covmats.npy")
-#rhovals = np.load(path + path2 + "Mbin3_rhovals.npy")
-#r = np.load(path + path2 + "Mbin3_rvals.npy")
+path = "/home2/mky/"
+path2 = "f0s0/"
+covmats = np.load(path + path2 + "Mbin3_covmats.npy")
+rhovals = np.load(path + path2 + "Mbin3_rhovals.npy")
+r = np.load(path + path2 + "Mbin3_rvals.npy")
 
 num_clusters = rhovals.shape[0]
 rs = [0]*num_clusters
 for i in range(rhovals.shape[0]):
 	rs[i] = r
 	covmats[i] = np.diag(np.diag(covmats[i]))
-#rs = np.array(rs)
-#rhovals = rhovals[:, 0:14]
 rvals = rs
-#covmats = covmats[0:, 0:14, 0:14]
-
-# data_vec = [0]*num_clusters    
-# for i in range(num_clusters):
-#     # (r values, rho values, covariance matrix)
-#     data_vec[i] = (rvals[0], rhovals[i], covmats[i])
 
 basepath = "/home2/mky/sum23/MultiNest_Samples/multinest_samples"
 
@@ -382,7 +360,7 @@ data = fit_Mbin3_miscData_mixtureModel.get_data()
 post = fit_Mbin3_miscData_mixtureModel.get_equal_weighted_posterior()
 stats = fit_Mbin3_miscData_mixtureModel.get_stats()
 
-# Save the Analyzer data.
-#np.save("~/sum23/Mbin3_data", data)
-#np.save("~/sum23/Mbin3_post", post)
-#np.save("~/sum23/Mbin3_stats", stats)
+#Save the Analyzer data.
+np.save("~/sum23/Mbin3_data", data)
+np.save("~/sum23/Mbin3_post", post)
+np.save("~/sum23/Mbin3_stats", stats)
