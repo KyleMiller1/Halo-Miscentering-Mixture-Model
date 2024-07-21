@@ -26,9 +26,31 @@ class TermColors:
 
 
 def uniform_prior(c, x1, x2):
+	"""
+ 	Uniform prior for parameter sampling. 
+
+   	Parameters:
+    	-----------
+     	c: Cube object from multinest sampler
+      	x1: Scalar
+           Minimum value
+       	x2: Scalar
+	   Maximum value
+  	"""
     return x1+c*(x2-x1)
 
 def gaussian_prior(c, mu, sigma):
+	"""
+ 	Gaussian prior for parameter sampling.
+
+  	Parameters:
+   	-----------
+    	c: Cube object from multinest sampler
+     	mu: Scalar
+      	   Median value of parameter
+	sigma: Scalar
+ 	   One standard deviation from median
+  	"""
     if (c <= 1.0e-16):
         return -1.0e32
     elif ((1.0-c) <= 1.0e-16):
@@ -41,15 +63,15 @@ def gaussian_prior(c, mu, sigma):
 #*********************
 def rho_D22(theta, r, nz):
     """
-    Definition of halo profile model from Diemer 2022.
+    Definition of the orbiting term of the halo profile model from Diemer 2022.
 
     Parameters
     ----------
     theta: Nparam*1 array
-        9 D22 model parameters in the form
-            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), log(d_1), log(s), log(d_max), log(rho_m)]
+        5 D22 model parameters in the form
+            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t)]
     r: N*1 array
-        Radial values (in Mpc/h) at which to compute the profile
+        Radial values (in R200m/h) at which to compute the profile
 
     Returns
     -------
@@ -87,17 +109,17 @@ def rho_D22(theta, r, nz):
 
 def rho_mis_given_r_mis(theta, r, r_mis, nz, intSlices=100):
     """
-    Miscentering correction model for an individual cluster profile (implicitly invokes D22).
+    Miscentering correction model for an individual cluster profile (implicitly invokes D22 orbiting term).
 
     Parameters
     ----------
     theta: Nparam*1 array
-        2 Miscentered + 9 D22 model parameters in the form
-            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), log(d_1), log(s), log(d_max), log(rho_m), f, ln_(sigma_r)]
+        2 Miscentered + 5 D22 model parameters in the form
+            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), f, ln_(sigma_r)]
     r: N*1 array
-        Radial values (in Mpc/h) at which to compute the profile
+        Radial values (in R200m/h) at which to compute the profile
     r_mis: float
-        Magnitude (in Mpc/h) by which the cluster profile is believed to be miscentered.
+        Magnitude (in R200m/h) by which the cluster profile is believed to be miscentered.
     intSlices: int
         Number of np.trapz integration slices when integrating phi \in [0, np.pi].
 
@@ -165,8 +187,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         ----------
         theta: Nparam*1 array
             Mixture model parameters in the form 
-            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), 
-             log(d_1), log(s), log(d_max), log(rho_m), f, ln_(sigma_r)]
+            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), f, ln_(sigma_r)]
 
         rvals: N_halos*N_bins numpy array of each halo's radial values.
         rhovals: N_halos*Nbins numpy array of each halo's rho values.
@@ -189,7 +210,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         # Log_Prior Calculation:
         # ***********************
 
-        # (Currently ignored to emphasize the likelihood.)
+        # (Currently ignored to emphasize the likelihood.) OR will have tiny impact
         # (Note that the prior still affects the parameter values sampled by MultiNest.)
 
 	#If priors on f and sigma_r are gaussian:
@@ -293,7 +314,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz, out_dir=None, verb
         cube[6] = gaussian_prior(cube[6], np.log(0.3), 0.22)     #sigma_r
 	#Uniform miscentering priors:
         #cube[5] = uniform_prior(cube[5], 0, 1)             # f     
-        #cube[6] = uniform_prior(cube[6], 0, 1)       # sigma_r (gaussian mean +/- 4 std.)
+        #cube[6] = uniform_prior(cube[6], 0, 1)       # sigma_r, NOTE: not in log form
 
         return cube
 
