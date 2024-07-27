@@ -358,7 +358,6 @@ rvals = np.load(data_path + "rvals.npy")
 rhovals = np.load(data_path + "rhovals.npy")
 covmats = np.load(data_path + "covmats.npy")
 
-multinest_basepath = "/path/to/dump/multinest/outputs"
-
 # Run MultiNest.
+multinest_basepath = "/path/to/dump/multinest/outputs"
 fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, out_dir=None, nz=50, rmis_samples=60, phi_samples=100)
