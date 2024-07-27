@@ -83,7 +83,7 @@ def rho_D22(theta, r):
         5 D22 orbiting model parameters in the form
             [log(alpha), log(beta), log(rho_s), log(r_s), log(r_t)]
     r: Nbins*1 array
-        Radial values (bin midpoints in R200m) at which to compute the model
+        Radial bin midpoints (in R200m) at which to compute the model
 
     Returns
     -------
@@ -117,7 +117,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
         5 D22 orbiting + 2 miscentered model parameters in the form
             [log(alpha), log(beta), log(rho_s), log(r_s), log(r_t), f_mis, sigma_r]
     r: Nbins*1 array
-        Radial values (bin midpoints in R200m) at which to compute the model
+        Radial bin midpoints (in R200m) at which to compute the model
     r_mis: float
         Magnitude (in R200m) by which the halo is miscentered.
     phi_samples: integer
@@ -147,9 +147,9 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
     Parameters
     ----------
     rvals: Nbins*1 array
-        Radial values (bin midpoints in R200m) of the input profiles
+        Radial bin midpoints (in R200m) of the input profiles
     rhovals: Nhalos*Nbins array
-	      Radial surface number densities (in (Mpc/h)^-3) of the input profiles
+        Radial surface number densities (in (Mpc/h)^-3) of the input profiles
     covmats: Nhalos*Nbins*Nbins array
         Jackknife covariance matrix estimate of each input profile
     out_dir: str
