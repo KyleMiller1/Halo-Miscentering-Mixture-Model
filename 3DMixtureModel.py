@@ -81,19 +81,19 @@ def rho_D22(theta, r):
     ----------
     theta: Nparam*1 array
         5 D22 orbiting model parameters in the form
-            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t)]
+            [log(alpha), log(beta), log(rho_s), log(r_s), log(r_t)]
     r: Nbins*1 array
         Radial values (bin midpoints in R200m) at which to compute the model
 
     Returns
     -------
-    N*1 array of density profile values
+    N*1 array of density profile values (in (Mpc/h)^-3)
     """
 
     # Unpack element-by-element so multinest doesn't complain
     lg_alpha = theta[0]
     lg_beta = theta[1]
-    lg_rho_s_over_rho_m = theta[2]
+    lg_rho_s = theta[2]
     lg_r_s  = theta[3]
     lg_r_t = theta[4]
 
@@ -101,20 +101,21 @@ def rho_D22(theta, r):
     beta = 10.**lg_beta
     r_s = 10.**lg_r_s
     r_t = 10.**lg_r_t
-    rho_s_over_rho_m = 10**lg_rho_s_over_rho_m
+    rho_s = 10**lg_rho_s
 
     exp_arg = -(2/alpha)*((r/r_s)**alpha - 1) - (1/beta)*((r/r_t)**beta - (r_s/r_t)**beta)
-    return rho_s_over_rho_m*np.exp(exp_arg)
+    return rho_s*np.exp(exp_arg)
 
 def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
     """
     Miscentering correction model for an individual halo profile.
+    (See arXiv:1811.06081.)
 
     Parameters
     ----------
     theta: Nparam*1 array
         5 D22 orbiting + 2 miscentered model parameters in the form
-            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), f_mis, sigma_r]
+            [log(alpha), log(beta), log(rho_s), log(r_s), log(r_t), f_mis, sigma_r]
     r: Nbins*1 array
         Radial values (bin midpoints in R200m) at which to compute the model
     r_mis: float
@@ -124,7 +125,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
 
     Returns
     -------
-    N*1 array of density profile values
+    N*1 array of density profile values (in (Mpc/h)^-3)
     """
 
     def sub_integrand(phi, r, r_mis):
@@ -148,7 +149,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
     rvals: Nbins*1 array
         Radial values (bin midpoints in R200m) of the input profiles
     rhovals: Nhalos*Nbins array
-	      Radial surface number densities (in (Mpc/h)^-2) of the input profiles
+	      Radial surface number densities (in (Mpc/h)^-3) of the input profiles
     covmats: Nhalos*Nbins*Nbins array
         Jackknife covariance matrix estimate of each input profile
     out_dir: str
@@ -173,13 +174,13 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
         ----------
         theta: Nparam*1 array
             Mixture model parameters in the form 
-            [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), f_mis, sigma_r]
+            [log(alpha), log(beta), log(rho_s), log(r_s), log(r_t), f_mis, sigma_r]
         rvals: Nbins*1 array
-    	      Radial values (bin midpoints in R200m) of the input profiles
+    	    Radial values (bin midpoints in R200m) of the input profiles
         rhovals: Nhalos*Nbins array
-	          Radial surface number densities (in (Mpc/h)^-2) of the input profiles
+	    Radial surface number densities (in (Mpc/h)^-3) of the input profiles
         covmats: Nhalos*Nbins*Nbins array
-    	      Jackknife covariance matrix estimate of each input profile
+    	    Jackknife covariance matrix estimate of each input profile
 
         Returns
         -------
@@ -282,7 +283,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
 
         cube[0] = uniform_prior(cube[0], log10(0.03), log10(0.4))  # lg_alpha            (D22)
         cube[1] = uniform_prior(cube[1], log10(0.1), log10(10))    # lg_beta             (D22)
-        cube[2] = uniform_prior(cube[2], -20, 20)                  # lg_rho_s_over_rho_m (D22)
+        cube[2] = uniform_prior(cube[2], -20, 20)                  # lg_rho_s            (D22)
         cube[3] = uniform_prior(cube[3], log10(0.01), log10(0.45)) # lg_r_s              (D22)
         cube[4] = uniform_prior(cube[4], log10(0.5), log10(10))    # lg_r_t              (D22)
         cube[5] = uniform_prior(cube[5], 0, 1)                     # f_mis               (Misc.)
