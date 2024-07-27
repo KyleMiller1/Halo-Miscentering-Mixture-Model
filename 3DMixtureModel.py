@@ -157,7 +157,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
     rmis_samples: integer
         Number of r_mis samples over Rayleigh distribution in calculating prob_given_mis_center
     phi_samples: integer
-        Number of np.trapz samples in integrating phi \in [0, 2*pi] in calculating rho_mis_given_r_mis
+        Number of np.trapz samples in integrating phi \in [0, pi] in calculating rho_mis_given_r_mis
     """
 
     num_halos = len(rhovals)
