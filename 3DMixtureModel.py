@@ -87,7 +87,7 @@ def rho_D22(theta, r):
 
     Returns
     -------
-    N*1 array of density profile values (in (Mpc/h)^-3)
+    N*1 array of radial subhalo number density profile values (in (Mpc/h)^-3)
     """
 
     # Unpack element-by-element so multinest doesn't complain
@@ -125,7 +125,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
 
     Returns
     -------
-    N*1 array of density profile values (in (Mpc/h)^-3)
+    N*1 array of radial subhalo number density profile values (in (Mpc/h)^-3)
     """
 
     def sub_integrand(phi, r, r_mis):
@@ -149,7 +149,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
     rvals: Nbins*1 array
         Radial bin midpoints (in R200m) of the input profiles
     rhovals: Nhalos*Nbins array
-        Radial surface number densities (in (Mpc/h)^-3) of the input profiles
+        Radial subhalo number densities (in (Mpc/h)^-3) of the input profiles
     covmats: Nhalos*Nbins*Nbins array
         Jackknife covariance matrix estimate of each input profile
     out_dir: str
@@ -178,7 +178,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
         rvals: Nbins*1 array
     	    Radial bin midpoints (in R200m) of the input profiles
         rhovals: Nhalos*Nbins array
-	    Radial surface number densities (in (Mpc/h)^-3) of the input profiles
+	    Radial subhalo number densities (in (Mpc/h)^-3) of the input profiles
         covmats: Nhalos*Nbins*Nbins array
     	    Jackknife covariance matrix estimate of each input profile
 
