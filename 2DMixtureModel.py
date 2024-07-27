@@ -303,7 +303,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         cube[4] = uniform_prior(cube[4], log10(0.5), log10(10))    # lg_r_t              (D22)
         cube[5] = uniform_prior(cube[5], 0, 1)                     # f_mis               (Misc.)
         cube[6] = uniform_prior(cube[6], 0, 1)                     # sigma_r             (Misc.)
-	    
+
         return cube
 
     def loglike(cube, ndim=7, nparam=7):        
