@@ -91,7 +91,7 @@ def proj_rho_D22(theta, r, lmax=40, nz=50):
 
     Returns
     -------
-    N*1 array of density profile values
+    N*1 array of density profile values (in (Mpc/h)^-2)
     """
 
     # Unpack element-by-element so multinest doesn't complain
@@ -120,6 +120,7 @@ def proj_rho_D22(theta, r, lmax=40, nz=50):
 def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
     """
     Miscentering correction model for an individual halo profile.
+    (See arXiv:1811.06081.)
 
     Parameters
     ----------
@@ -137,7 +138,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
 
     Returns
     -------
-    N*1 array of density profile values
+    N*1 array of density profile values (in (Mpc/h)^-2)
     """
 
     def sub_integrand(phi, r, r_mis):
@@ -160,22 +161,16 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
     ----------
     rvals: Nbins*1 array
     	Radial values (bin midpoints in R200m) of the input profiles
-
     rhovals: Nhalos*Nbins array
 	Radial surface number densities (in (Mpc/h)^-2) of the input profiles
-
     covmats: Nhalos*Nbins*Nbins array
     	Jackknife covariance matrix estimate of each input profile
-
     out_dir: str
         String specifying where to store chains from model fitting
-
     nz: integer
         Number of integral samples in projecting D22 to 2D
- 
     rmis_samples: integer
         Number of r_mis samples over Rayleigh distribution in calculating prob_given_mis_center
-
     phi_samples: integer
         Number of np.trapz samples in integrating phi \in [0, 2*pi] in calculating rho_mis_given_r_mis
     """
@@ -186,7 +181,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
     # Likelihood and prior definitions
     # -> Formatted for emcee and pymultinest
     #****************************************
-    def ln_like3d(theta, rvals, rhovals, covmats, nz, rmis_samples, phi_samples):
+    def ln_like3d(theta, rvals, rhovals, covmats):
         """
         Gaussian ln(likelihood) definition used for fitting the mixture model.
 
@@ -195,24 +190,12 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         theta: Nparam*1 array
             Mixture model parameters in the form 
             [log(alpha), log(beta), log(rho_s/rho_m), log(r_s), log(r_t), f_mis, sigma_r]
-
         rvals: Nbins*1 array
     	    Radial values (bin midpoints in R200m) of the input profiles
-
         rhovals: Nhalos*Nbins array
 	    Radial surface number densities (in (Mpc/h)^-2) of the input profiles
-
         covmats: Nhalos*Nbins*Nbins array
     	    Jackknife covariance matrix estimate of each input profile
-
-	nz: integer
-            Number of integral samples in projecting D22 to 2D
-
-        rmis_samples: integer
-            Number of r_mis samples over Rayleigh distribution in calculating prob_given_mis_center
-
-        phi_samples: integer
-            Number of np.trapz samples in integrating phi \in [0, 2*pi] in calculating rho_mis_given_r_mis
 
         Returns
         -------
@@ -324,7 +307,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         return cube
 
     def loglike(cube, ndim=7, nparam=7):        
-        return ln_like3d(cube, rvals, rhovals, covmats, nz, rmis_samples, phi_samples)
+        return ln_like3d(cube, rvals, rhovals, covmats)
 
     def dumper_callback(nSamples, nlive, nPar, physLive, posterior,
                         paramConstr, maxLogLike, logZ, logZerr, nullcontext):
