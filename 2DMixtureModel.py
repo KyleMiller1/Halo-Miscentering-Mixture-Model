@@ -191,7 +191,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
             Mixture model parameters in the form 
             [log(alpha), log(beta), log(rho_s), log(r_s), log(r_t), f_mis, sigma_r]
         rvals: Nbins*1 array
-    	    Radial values (bin midpoints in R200m) of the input profiles
+    	    Radial bin midpoints (in R200m) of the input profiles
         rhovals: Nhalos*Nbins array
 	    Radial surface number densities (in (Mpc/h)^-2) of the input profiles
         covmats: Nhalos*Nbins*Nbins array
@@ -222,9 +222,8 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         # ****************************
         overall_log_likelihood = 0
 
-        # Compute the theory predictions for both models.
-        r_data = rvals[0]            
-        rho_thr_D22 = proj_rho_D22(theta, r_data, nz=nz) 
+        # Compute the theory predictions for both models.            
+        rho_thr_D22 = proj_rho_D22(theta, rvals, nz=nz) 
 
         def prob_r_mis(r_mis):
             return r_mis/(sigma_r)**2 * np.exp(-(r_mis)**2 /(2*sigma_r**2))           
@@ -253,7 +252,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         # Prob(data_i | mis-centered, theta)
         ##########################################
         def integrand(r_mis):                                       
-            diff_from_misc = rhovals - rho_mis_given_r_mis(theta, r_data, r_mis, nz=nz, phi_samples=phi_samples)
+            diff_from_misc = rhovals - rho_mis_given_r_mis(theta, rvals, r_mis, nz=nz, phi_samples=phi_samples)
 
             # Up next: gaussian_diff = np.exp(-1/2 * np.dot(diff_from_misc, np.linalg.solve(all_covmats, diff_from_misc)))
             partial = np.linalg.solve(covmats, diff_from_misc)
