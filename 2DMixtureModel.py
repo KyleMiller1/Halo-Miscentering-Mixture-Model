@@ -331,12 +331,12 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz=50, rmis_samples=60
 #*****************************************************************************
 # SCRIPT EXECUTABLE
 #*****************************************************************************
-# Load the halo data.
+# Load the input halo data.
 data_path = "/path/to/halo/numpy/data"
 rvals = np.load(data_path + "/rvals.npy")
 rhovals = np.load(data_path + "/rhovals.npy")
 covmats = np.load(data_path + "/covmats.npy")
 
 # Run MultiNest.
-multinest_basepath = "/path/to/dump/multinest/outputs/and/prefix"
+multinest_basepath = "/path/to/dump/outputs/and/prefix"
 fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, nz=50, rmis_samples=60, phi_samples=100)
