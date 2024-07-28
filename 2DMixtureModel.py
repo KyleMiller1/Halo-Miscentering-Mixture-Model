@@ -166,7 +166,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, nz=50, rmis_samples=60
     covmats: Nhalos*Nbins*Nbins array
     	Jackknife covariance matrix estimate of each input profile
     base_path: string
-        Local path specifying where to store chains from model fitting
+        Local path prefixing where to store chains from model fitting
     nz: integer
         Number of integral samples in projecting D22 to 2D
     rmis_samples: integer
@@ -338,5 +338,5 @@ rhovals = np.load(data_path + "/rhovals.npy")
 covmats = np.load(data_path + "/covmats.npy")
 
 # Run MultiNest.
-multinest_basepath = "/path/to/dump/multinest/outputs"
+multinest_basepath = "/path/to/dump/multinest/outputs/and/prefix"
 fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, nz=50, rmis_samples=60, phi_samples=100)
