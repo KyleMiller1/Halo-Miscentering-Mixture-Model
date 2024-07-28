@@ -140,7 +140,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
 #**************
 # Fitting code
 #**************
-def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_samples=60, phi_samples=100):
+def fit_mixture_model(rvals, rhovals, covmats, base_path, rmis_samples=60, phi_samples=100):
     """
     Function to fit the mixture model to a collection of individual halo radial profile data vectors.
 
@@ -152,7 +152,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
         Radial subhalo number densities (in (Mpc/h)^-3) of the input profiles
     covmats: Nhalos*Nbins*Nbins array
         Jackknife covariance matrix estimate of each input profile
-    out_dir: str
+    base_path: str
         String specifying where to store chains from model fitting
     rmis_samples: integer
         Number of r_mis samples over Rayleigh distribution in calculating prob_given_mis_center
@@ -324,4 +324,4 @@ covmats = np.load(data_path + "/covmats.npy")
 
 # Run MultiNest.
 multinest_basepath = "/path/to/dump/multinest/outputs"
-fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, out_dir=None, rmis_samples=60, phi_samples=100)
+fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, rmis_samples=60, phi_samples=100)
