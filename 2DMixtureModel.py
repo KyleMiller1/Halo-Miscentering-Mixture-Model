@@ -153,7 +153,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
 #**************
 # Fitting code
 #**************
-def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, rmis_samples=60, phi_samples=100):
+def fit_mixture_model(rvals, rhovals, covmats, base_path, nz=50, rmis_samples=60, phi_samples=100):
     """
     Function to fit the mixture model to a collection of individual halo radial profile data vectors.
 
@@ -165,7 +165,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
 	Radial subhalo surface number densities (in (Mpc/h)^-2) of the input profiles
     covmats: Nhalos*Nbins*Nbins array
     	Jackknife covariance matrix estimate of each input profile
-    out_dir: str
+    base_path: str
         String specifying where to store chains from model fitting
     nz: integer
         Number of integral samples in projecting D22 to 2D
@@ -339,4 +339,4 @@ covmats = np.load(data_path + "/covmats.npy")
 
 # Run MultiNest.
 multinest_basepath = "/path/to/dump/multinest/outputs"
-fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, out_dir=None, nz=50, rmis_samples=60, phi_samples=100)
+fit_mixture_model(rvals, rhovals, covmats, multinest_basepath, nz=50, rmis_samples=60, phi_samples=100)
