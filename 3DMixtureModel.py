@@ -318,9 +318,9 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, rmis_sam
 #*****************************************************************************
 # Load the halo data.
 data_path = "/path/to/halo/numpy/data"
-rvals = np.load(data_path + "rvals.npy")
-rhovals = np.load(data_path + "rhovals.npy")
-covmats = np.load(data_path + "covmats.npy")
+rvals = np.load(data_path + "/rvals.npy")
+rhovals = np.load(data_path + "/rhovals.npy")
+covmats = np.load(data_path + "/covmats.npy")
 
 # Run MultiNest.
 multinest_basepath = "/path/to/dump/multinest/outputs"
