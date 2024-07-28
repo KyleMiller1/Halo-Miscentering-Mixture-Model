@@ -72,7 +72,7 @@ def gaussian_prior(c, mu, sigma):
 #*********************
 # Profile definitions
 #*********************
-def proj_rho_D22(theta, r, lmax=40, nz=50):
+def proj_rho_D22_orb(theta, r, lmax=40, nz=50):
     """
     Definition of the orbiting term of the halo profile model from Diemer 2022, projected to 2D.
     (See arXiv:2205.03420.)
@@ -142,7 +142,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
     """
 
     def sub_integrand(phi, r, r_mis):
-        return 1/(2*np.pi) * proj_rho_D22(theta[0:5], np.sqrt(r**2 + r_mis**2 + 2*r*r_mis*np.cos(phi)), nz=nz)
+        return 1/(2*np.pi) * proj_rho_D22_orb(theta[0:5], np.sqrt(r**2 + r_mis**2 + 2*r*r_mis*np.cos(phi)), nz=nz)
 
     def rho_mis_given_r_mis(r, r_mis):     
         phi = np.linspace(0, 2*np.pi, phi_samples)
@@ -223,7 +223,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         overall_log_likelihood = 0
 
         # Compute the theory predictions for both models.            
-        rho_thr_D22 = proj_rho_D22(theta, rvals, nz=nz) 
+        rho_thr_D22 = proj_rho_D22_orb(theta, rvals, nz=nz) 
 
         def prob_r_mis(r_mis):
             return r_mis/(sigma_r)**2 * np.exp(-(r_mis)**2 /(2*sigma_r**2))           
