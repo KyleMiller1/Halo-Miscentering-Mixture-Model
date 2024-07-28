@@ -222,16 +222,13 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, out_dir=None, nz=50, r
         # ****************************
         overall_log_likelihood = 0
 
-        # Compute the theory predictions for both models.            
-        rho_thr_D22 = proj_rho_D22_orb(theta, rvals, nz=nz) 
-
         def prob_r_mis(r_mis):
             return r_mis/(sigma_r)**2 * np.exp(-(r_mis)**2 /(2*sigma_r**2))           
 
         ##########################################
         # Prob(data_i | correctly-centered, theta)
         ##########################################
-        diff_from_D22 = rhovals - rho_thr_D22
+        diff_from_D22 = rhovals - proj_rho_D22_orb(theta, rvals, nz=nz)
 
         # Up next: prob_given_cor_center = np.exp(-1/2 * np.dot(diff_from_D22, np.linalg.solve(all_covmats, diff_from_D22)))
         partial = np.linalg.solve(covmats, diff_from_D22)
