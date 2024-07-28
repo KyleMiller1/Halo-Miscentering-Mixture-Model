@@ -152,8 +152,8 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, rmis_samples=60, phi_s
         Radial subhalo number densities (in (Mpc/h)^-3) of the input profiles
     covmats: Nhalos*Nbins*Nbins array
         Jackknife covariance matrix estimate of each input profile
-    base_path: str
-        String specifying where to store chains from model fitting
+    base_path: string
+        Local path specifying where to store chains from model fitting
     rmis_samples: integer
         Number of r_mis samples over Rayleigh distribution in calculating prob_given_mis_center
     phi_samples: integer
