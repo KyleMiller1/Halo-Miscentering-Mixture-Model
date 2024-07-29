@@ -91,7 +91,7 @@ def proj_rho_D22_orb(theta, r, lmax=40, nz=50):
 
     Returns
     -------
-    N*1 array of radial subhalo number density profile values (in (Mpc/h)^-2)
+    Nbins*1 array of radial subhalo number density profile values (in (Mpc/h)^-2)
     """
 
     # Unpack element-by-element so multinest doesn't complain
@@ -138,7 +138,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
 
     Returns
     -------
-    N*1 array of radial subhalo number density profile values (in (Mpc/h)^-2)
+    Nbins*1 array of radial subhalo number density profile values (in (Mpc/h)^-2)
     """
 
     def sub_integrand(phi, r, r_mis):
