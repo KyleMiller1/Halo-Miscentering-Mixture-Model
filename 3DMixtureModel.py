@@ -190,8 +190,8 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, rmis_samples=60, phi_s
         # Parameter Check:
         # *****************
         f_mis = theta[5]
-        sigma_r = theta[6]
-        if (f_mis < 0.0 or f_mis > 1.0 or sigma_r <= 0.0):
+        sigma_R = theta[6]
+        if (f_mis < 0.0 or f_mis > 1.0 or sigma_R <= 0.0):
             return -np.inf
 
         # ***********************
@@ -205,68 +205,54 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, rmis_samples=60, phi_s
         # ****************************
         # Log_Likelihood Calculation:
         # ****************************
-        overall_log_likelihood = 0
-
-        def prob_r_mis(r_mis):
-            return r_mis/(sigma_r)**2 * np.exp(-(r_mis)**2 /(2*sigma_r**2))           
-
+        overall_log_likelihood = 0        
+	    
         ##########################################
         # Prob(data_i | correctly-centered, theta)
         ##########################################
         diff_from_D22 = rhovals - rho_D22_orb(theta, rvals)
+	diff_from_D22 = diff_from_D22.reshape(diff_from_D22.shape[0], diff_from_D22.shape[1], 1) # (n_halos, n_bins, 1)
 
-        # Up next: prob_given_cor_center = np.exp(-1/2 * np.dot(diff_from_D22, np.linalg.solve(all_covmats, diff_from_D22)))
-        partial = np.linalg.solve(covmats, diff_from_D22)
+        # Up next: prob_given_cor_center_i = np.exp(-1/2 * np.dot(diff_from_D22_i, np.linalg.solve(covmat_i, diff_from_D22_i)))
+	partial = np.linalg.solve(covmats, diff_from_D22)
+    	diff_from_D22 = diff_from_D22.squeeze(-1) # (n_halos, n_bins)
+    	partial = partial.squeeze(-1)             # (n_halos, n_bins)
 
-        global id_count
-        id_count = 0
-        def helper_one(row):
-            global id_count
-            res = np.dot(row, diff_from_D22[id_count])
-
-            id_count += 1
-            return res
-
-        prob_given_cor_center = np.exp(-1/2 * np.apply_along_axis(helper_one, axis=1, arr=partial))
-        id_count = 0 # Reset id_count.
-
+    	prob_given_cor_center = np.exp(-1/2 * np.sum(diff_from_D22 * partial, axis=1)) # (n_halos,)
+	     
         ##########################################
         # Prob(data_i | mis-centered, theta)
         ##########################################
+        def prob_r_mis(r_mis):
+            return r_mis/(sigma_R)**2 * np.exp(-(r_mis)**2 /(2*sigma_R**2))   
+		
         def integrand(r_mis):                                       
             diff_from_misc = rhovals - rho_mis_given_r_mis(theta, rvals, r_mis, phi_samples=phi_samples)
+	    diff_from_misc = diff_from_misc.reshape(diff_from_misc.shape[0], diff_from_misc.shape[1], 1) # (n_halos, n_bins, 1)
 
-            # Up next: gaussian_diff = np.exp(-1/2 * np.dot(diff_from_misc, np.linalg.solve(all_covmats, diff_from_misc)))
+            # Up next: gaussian_diff_i = np.exp(-1/2 * np.dot(diff_from_misc_i, np.linalg.solve(covmat_i, diff_from_misc_i)))
             partial = np.linalg.solve(covmats, diff_from_misc)
+            diff_from_misc = diff_from_misc.squeeze(-1) # (n_halos, n_bins)
+            partial = partial.squeeze(-1)               # (n_halos, n_bins)
 
-            global id_count
-            def helper_two(row):
-                global id_count
-                res = np.dot(row, diff_from_misc[id_count])
-
-                id_count += 1
-                return res
-
-            gaussian_diff = np.exp(-1/2 * np.apply_along_axis(helper_two, axis=1, arr=partial))
-            id_count = 0 # Reset id_count.
-
+	    gaussian_diff = np.exp(-1/2 * np.sum(diff_from_misc * partial, axis=1)) # (n_halos,)
             return gaussian_diff # Don't multiply by prob(r_mis) here. np's weighted average will account for it.
 
-        r_mis_vals = np.linspace(0, 4*sigma_r, rmis_samples)
-        halo_gaussian_diffs = np.array([integrand(r_mis_i) for r_mis_i in r_mis_vals]).T
-        prob_given_mis_center = np.average(halo_gaussian_diffs, axis=1, weights=prob_r_mis(r_mis_vals))
+        r_mis_vals = np.linspace(0, 4*sigma_R, rmis_samples)
+        halo_gaussian_diffs = np.array([integrand(r_mis_i) for r_mis_i in r_mis_vals]).T                # (n_halos, len(r_mis_vals))
+        prob_given_mis_center = np.average(halo_gaussian_diffs, axis=1, weights=prob_r_mis(r_mis_vals)) # (n_halos,)
 
         ##########################################
         # log(likelihood_i)
         ##########################################
-        log_likelihoods = np.log((1 - f_mis) * prob_given_cor_center + f_mis * prob_given_mis_center)
-        overall_log_likelihood = np.sum(log_likelihoods)
+        log_likelihoods = np.log((1 - f_mis) * prob_given_cor_center + f_mis * prob_given_mis_center) # (n_halos,)
+        overall_log_likelihood = np.sum(log_likelihoods)                                              # (1,)
 
         if (np.isnan(overall_log_likelihood)==True):
             return -np.inf
 
         # Return log(posterior) \propto log(likelihood) + log(prior).
-        return overall_log_likelihood + log_prior
+        return overall_log_likelihood + log_prior                                                     # (1,)
 
     def prior(cube, ndim=7, nparam=7):
         """
@@ -283,7 +269,7 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, rmis_samples=60, phi_s
         cube[3] = uniform_prior(cube[3], log10(0.01), log10(0.45)) # lg_r_s              (D22)
         cube[4] = uniform_prior(cube[4], log10(0.5), log10(10))    # lg_r_t              (D22)
         cube[5] = uniform_prior(cube[5], 0, 1)                     # f_mis               (Misc.)
-        cube[6] = uniform_prior(cube[6], 0, 1)                     # sigma_r             (Misc.)
+        cube[6] = uniform_prior(cube[6], 0, 1)                     # sigma_R             (Misc.)
 
         return cube
 
