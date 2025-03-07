@@ -160,8 +160,6 @@ def fit_mixture_model(rvals, rhovals, covmats, base_path, rmis_samples=60, phi_s
         Number of np.trapz samples in integrating phi \in [0, pi] in calculating rho_mis_given_r_mis
     """
 
-    num_halos = len(rhovals)
-
     #****************************************
     # Likelihood and prior definitions
     # -> Formatted for emcee and pymultinest
