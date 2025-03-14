@@ -115,7 +115,7 @@ def proj_rho_D22_orb(theta, r, lmax=40, nz=50):
     R_grid, z_grid = np.meshgrid(r,z,indexing='ij')
     r_grid = np.sqrt(R_grid**2 + z_grid**2)
 
-    return 2.* integrate.simps(rho0_orbit(r_grid), z)
+    return 2.* integrate.simpson(rho0_orbit(r_grid), z)
 
 def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
     """
@@ -134,7 +134,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
     nz: integer
         Number of integral samples to use in projecting D22 to 2D
     phi_samples: integer
-        Number of np.trapz samples when integrating phi \in [0, 2*pi].
+        Number of np.trapezoid samples when integrating phi \in [0, 2*pi].
 
     Returns
     -------
@@ -146,7 +146,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, nz=50, phi_samples=100):
 
     def rho_mis_given_r_mis(r, r_mis):     
         phi = np.linspace(0, 2*np.pi, phi_samples)
-        return np.array([np.trapz(sub_integrand(phi, r_i, r_mis), phi) for r_i in r])          
+        return np.array([np.trapezoid(sub_integrand(phi, r_i, r_mis), phi) for r_i in r])          
 
     return rho_mis_given_r_mis(r, r_mis)
 
