@@ -121,7 +121,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
     r_mis: float
         Magnitude (in R200m) by which the halo is miscentered.
     phi_samples: integer
-        Number of np.trapz samples when integrating phi \in [0, pi].
+        Number of np.trapezoid samples when integrating phi \in [0, pi].
 
     Returns
     -------
@@ -133,7 +133,7 @@ def rho_mis_given_r_mis(theta, r, r_mis, phi_samples=100):
 
     def rho_mis_given_r_mis(r, r_mis):     
         phi = np.linspace(0, np.pi, phi_samples)
-        return np.array([np.trapz(sub_integrand(phi, r_i, r_mis), phi) for r_i in r])          
+        return np.array([np.trapezoid(sub_integrand(phi, r_i, r_mis), phi) for r_i in r])          
 
     return rho_mis_given_r_mis(r, r_mis)
 
